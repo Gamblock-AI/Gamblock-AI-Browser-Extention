@@ -1,0 +1,26 @@
+{
+  "name": "browser_extension",
+  "version": "1.0.0",
+  "description": "Passive DOM sensor for Gamblock AI on Windows. Reads textual page content (title, headings, anchor text) and forwards it to the local **Windows Service** over an authenticated WebSocket for on-device AI classification.",
+  "main": "background.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gamblock-AI/Gamblock-AI-Browser-Extention.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Gamblock-AI/Gamblock-AI-Browser-Extention/issues"
+  },
+  "homepage": "https://github.com/Gamblock-AI/Gamblock-AI-Browser-Extention#readme",
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.9"
+  }
+}
