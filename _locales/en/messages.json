@@ -1,0 +1,12 @@
+{
+  "extName": { "message": "Gamblock AI - Web Protection" },
+  "extDesc": { "message": "Passive DOM sensor for Gamblock AI. Reads page content and forwards it to the local AI classifier via an authenticated WebSocket. This extension never classifies content or blocks pages itself." },
+  "optionsTitle": { "message": "Gamblock AI — Pairing" },
+  "optionsDesc1": { "message": "Enter the pairing token shown by the Gamblock AI client application. This token authenticates the extension to the local <em>Windows Service</em> via WebSocket." },
+  "optionsDesc2": { "message": "The token is stored locally in <code>chrome.storage.local</code> and is never sent to any server other than the local service at <code>ws://127.0.0.1:9090</code>." },
+  "inputPlaceholder": { "message": "Pairing token" },
+  "btnSave": { "message": "Save & Connect" },
+  "statusSavedActive": { "message": "Token saved. Connection active in background." },
+  "statusEmpty": { "message": "Token cannot be empty." },
+  "statusSavedReconnecting": { "message": "Token saved. Reconnecting..." }
+}

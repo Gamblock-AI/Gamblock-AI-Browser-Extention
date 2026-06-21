@@ -1,11 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "Gamblock AI - Web Protection",
+  "default_locale": "id",
+  "name": "__MSG_extName__",
   "version": "1.0.0",
-  "description": "Passive DOM sensor for Gamblock AI. Reads page content and forwards it to the local AI classifier via an authenticated WebSocket. This extension never classifies content or blocks pages itself.",
-  "permissions": ["activeTab", "tabs", "storage"],
+  "description": "__MSG_extDesc__",
+  "permissions": ["activeTab", "tabs", "storage", "alarms"],
   "host_permissions": ["<all_urls>"],
   "options_page": "options.html",
+  "icons": {
+    "16": "images/icon.png",
+    "48": "images/icon.png",
+    "128": "images/icon.png"
+  },
   "background": {
     "service_worker": "background.js"
   },

@@ -9,9 +9,11 @@
 const WS_URL = 'ws://127.0.0.1:9090';
 const TOKEN_STORAGE_KEY = 'gamblock_pairing_token';
 const RECONNECT_DELAY_MS = 5000;
+const PING_INTERVAL_MS = 20000; // 20 seconds
 
 let ws = null;
 let reconnectTimer = null;
+let pingInterval = null;
 let connectionAuthenticated = false;
 
 // Read the pairing token that was entered during pairing with the Gamblock
@@ -36,6 +38,11 @@ async function connectWebSocket() {
     return;
   }
 
+  // Prevent multiple connections
+  if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
+    return;
+  }
+
   try {
     ws = new WebSocket(WS_URL);
     connectionAuthenticated = false;
@@ -46,10 +53,23 @@ async function connectWebSocket() {
       // to close the socket if the token is invalid.
       ws.send(JSON.stringify({ type: 'auth', token }));
       console.log('[Gamblock] WebSocket opened, awaiting auth confirmation');
+      
       if (reconnectTimer) {
         clearTimeout(reconnectTimer);
         reconnectTimer = null;
       }
+
+      // --- KEEP-ALIVE MECHANISM FOR MV3 SERVICE WORKER ---
+      // AI Agent Note: In Manifest V3, service workers are forcefully suspended 
+      // after 30 seconds of inactivity. Sending a WebSocket message resets this 
+      // idle timer. This 20-second interval ensures the worker stays alive 
+      // indefinitely as long as the WebSocket connection is active.
+      if (pingInterval) clearInterval(pingInterval);
+      pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN && connectionAuthenticated) {
+          ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+        }
+      }, PING_INTERVAL_MS);
     };
 
     ws.onmessage = (event) => {
@@ -73,7 +93,13 @@ async function connectWebSocket() {
 
     ws.onclose = () => {
       connectionAuthenticated = false;
+      if (pingInterval) {
+        clearInterval(pingInterval);
+        pingInterval = null;
+      }
       console.log('[Gamblock] Disconnected. Reconnecting in', RECONNECT_DELAY_MS, 'ms...');
+      
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       reconnectTimer = setTimeout(connectWebSocket, RECONNECT_DELAY_MS);
     };
 
@@ -82,6 +108,7 @@ async function connectWebSocket() {
     };
   } catch (e) {
     console.error('[Gamblock] Connection failed:', e);
+    if (reconnectTimer) clearTimeout(reconnectTimer);
     reconnectTimer = setTimeout(connectWebSocket, RECONNECT_DELAY_MS);
   }
 }
@@ -109,6 +136,20 @@ chrome.storage.onChanged.addListener((changes, area) => {
       try { ws.close(); } catch (_) {}
     }
     connectWebSocket();
+  }
+});
+
+// --- FALLBACK KEEP-ALIVE MECHANISM ---
+// AI Agent Note: The Chrome Alarms API wakes up the service worker every minute
+// if it happens to die (e.g. computer goes to sleep and wakes up). This is a
+// reliable safety net in MV3.
+chrome.alarms.create("keep-alive-alarm", { periodInMinutes: 1 });
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "keep-alive-alarm") {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      console.log('[Gamblock] Alarm woke up worker. Reconnecting WebSocket...');
+      connectWebSocket();
+    }
   }
 });
 

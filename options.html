@@ -28,19 +28,19 @@
   </style>
 </head>
 <body>
-  <h1>Gamblock AI — Pairing</h1>
-  <p>
+  <h1 data-i18n="optionsTitle">Gamblock AI — Pairing</h1>
+  <p data-i18n="optionsDesc1">
     Masukkan token pairing yang ditampilkan oleh aplikasi klien Gamblock AI.
     Token ini mengautentikasi ekstensi ke <em>Windows Service</em> lokal lewat
-    WebSocket (PRD §3.1). Tanpa token, tidak ada pindaian DOM yang diteruskan.
+    WebSocket (PRD §3.1).
   </p>
-  <p>
+  <p data-i18n="optionsDesc2">
     Token disimpan lokal di <code>chrome.storage.local</code> dan tidak pernah
     dikirim ke server mana pun selain service lokal di
     <code>ws://127.0.0.1:9090</code>.
   </p>
-  <input id="token" type="text" placeholder="Token pairing" autocomplete="off" />
-  <button id="save">Simpan &amp; Hubungkan</button>
+  <input id="token" type="text" data-i18n-placeholder="inputPlaceholder" placeholder="Token pairing" autocomplete="off" />
+  <button id="save" data-i18n="btnSave">Simpan &amp; Hubungkan</button>
   <div id="status"></div>
   <script src="options.js"></script>
 </body>

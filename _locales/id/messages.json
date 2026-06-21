@@ -1,0 +1,12 @@
+{
+  "extName": { "message": "Gamblock AI - Proteksi Web" },
+  "extDesc": { "message": "Sensor DOM pasif untuk Gamblock AI. Membaca konten halaman dan meneruskannya ke klasifikasi AI lokal melalui WebSocket. Ekstensi ini tidak memblokir situs sendiri." },
+  "optionsTitle": { "message": "Gamblock AI — Pairing" },
+  "optionsDesc1": { "message": "Masukkan token pairing yang ditampilkan oleh aplikasi klien Gamblock AI. Token ini mengautentikasi ekstensi ke <em>Windows Service</em> lokal lewat WebSocket (PRD §3.1)." },
+  "optionsDesc2": { "message": "Token disimpan lokal di <code>chrome.storage.local</code> dan tidak pernah dikirim ke server mana pun selain service lokal di <code>ws://127.0.0.1:9090</code>." },
+  "inputPlaceholder": { "message": "Token pairing" },
+  "btnSave": { "message": "Simpan & Hubungkan" },
+  "statusSavedActive": { "message": "Token tersimpan. Koneksi aktif di background." },
+  "statusEmpty": { "message": "Token tidak boleh kosong." },
+  "statusSavedReconnecting": { "message": "Token disimpan. Menghubungkan ulang..." }
+}

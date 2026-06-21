@@ -11,18 +11,27 @@ const status = document.getElementById('status');
 chrome.storage.local.get([TOKEN_STORAGE_KEY], (result) => {
   if (result[TOKEN_STORAGE_KEY]) {
     input.value = result[TOKEN_STORAGE_KEY];
-    status.textContent = 'Token tersimpan. Koneksi aktif di background.';
+    status.textContent = chrome.i18n.getMessage("statusSavedActive");
   }
 });
 
 saveBtn.addEventListener('click', () => {
   const token = input.value.trim();
   if (!token) {
-    status.textContent = 'Token tidak boleh kosong.';
+    status.textContent = chrome.i18n.getMessage("statusEmpty");
     return;
   }
   chrome.storage.local.set({ [TOKEN_STORAGE_KEY]: token }, () => {
     // background.js listens to storage changes and reconnects automatically.
-    status.textContent = 'Token disimpan. Menghubungkan ulang...';
+    status.textContent = chrome.i18n.getMessage("statusSavedReconnecting");
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.innerHTML = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = chrome.i18n.getMessage(el.getAttribute('data-i18n-placeholder'));
   });
 });
