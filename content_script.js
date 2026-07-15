@@ -7,8 +7,9 @@
 
 // Extract key DOM elements for the local AI classifier (PRD proposal §3:
 // DOM analysis using title, heading, and anchor text -> Bag-of-Words).
-// Exported for unit testing; in the extension it is consumed by sendDOM below.
-export function extractDOM() {
+// Kept as a plain function because manifest content scripts are classic scripts,
+// not ES modules. Tests receive a reference through the guarded test API below.
+function extractDOM() {
   const title = document.title || '';
   const headings = Array.from(document.querySelectorAll('h1, h2, h3'))
     .map((h) => h.textContent.trim())
@@ -20,6 +21,13 @@ export function extractDOM() {
     .slice(0, 50);
 
   return { title, headings, anchorTexts };
+}
+
+// Expose only in the Vitest environment. This preserves direct unit-test access
+// without adding ESM `export` syntax that would make Chrome reject the classic
+// content script at runtime.
+if (typeof globalThis !== 'undefined' && globalThis.__GAMBLOCK_TEST__ === true) {
+  globalThis.__gamblockContentScriptTestApi = Object.freeze({ extractDOM });
 }
 
 // Forward the DOM snapshot to the background worker, which relays it to the

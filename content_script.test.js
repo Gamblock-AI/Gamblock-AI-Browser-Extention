@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { extractDOM } from './content_script.js';
+import './content_script.js';
+
+const { extractDOM } = globalThis.__gamblockContentScriptTestApi;
 
 describe('extractDOM', () => {
   beforeEach(() => {

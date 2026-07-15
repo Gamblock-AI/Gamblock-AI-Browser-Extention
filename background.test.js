@@ -44,6 +44,10 @@ describe('background.js — module load under stubbed chrome', () => {
         local: { get: (_k, cb) => cb && cb({}), set: (_o, cb) => cb && cb() },
         onChanged: { addListener: vi.fn() },
       },
+      alarms: {
+        create: vi.fn(),
+        onAlarm: { addListener: vi.fn() },
+      },
       tabs: { query: (_q, cb) => cb && cb([]) },
     };
     globalThis.console = { ...console, log: vi.fn(), warn: vi.fn(), error: vi.fn() };
@@ -55,5 +59,10 @@ describe('background.js — module load under stubbed chrome', () => {
     expect(globalThis.chrome.runtime.onInstalled.addListener).toHaveBeenCalled();
     expect(globalThis.chrome.runtime.onMessage.addListener).toHaveBeenCalled();
     expect(globalThis.chrome.storage.onChanged.addListener).toHaveBeenCalled();
+    expect(globalThis.chrome.alarms.create).toHaveBeenCalledWith(
+      'keep-alive-alarm',
+      { periodInMinutes: 1 },
+    );
+    expect(globalThis.chrome.alarms.onAlarm.addListener).toHaveBeenCalled();
   });
 });

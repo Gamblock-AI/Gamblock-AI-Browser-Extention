@@ -1,0 +1,71 @@
+schema_version: 1
+context_version: "2026-07-15.2"
+component: "browser_extension"
+repository_mode: "standalone"
+canonical_rules: "AGENTS.md"
+
+shared_contracts:
+  proposal_authority: 1
+  proposal_traceability: 1
+  local_ai_lint_policy: 1
+  privacy_boundary: 1
+  websocket_loopback: 1
+
+required_context:
+  - "AGENTS.md"
+  - "README.md"
+  - "docs/ai/README.md"
+  - "docs/ai/manifest.yaml"
+
+provider_entrypoints:
+  claude: "CLAUDE.md"
+  gemini: "GEMINI.md"
+  copilot: ".github/copilot-instructions.md"
+  cursor: ".cursor/rules/gamblock-ai.mdc"
+  cursor_legacy: ".cursorrules"
+
+skills:
+  verify_change: ".agents/skills/verify-gamblock-change/SKILL.md"
+
+commands:
+  node_version: "20"
+  install: "npm ci"
+  default_lint: "npm run lint"
+  test: "npm test"
+  validate_extension: "npm run validate:extension"
+  verify_context: "bash scripts/verify-ai-context.sh"
+  verify_context_local: "bash scripts/verify-ai-context.sh --allow-untracked"
+  package: "npm run package:extension"
+  verify_package: "npm run verify:package"
+
+proposal_requirements:
+  - "PKM-AI-002"
+  - "PKM-AI-003"
+  - "PKM-PRIV-001"
+  - "PKM-PRIV-002"
+
+invariants:
+  - "passive_sensor_only"
+  - "on_device_inference_only"
+  - "authenticated_loopback_relay"
+  - "no_remote_browsing_data"
+  - "no_extension_block_or_redirect"
+
+contracts:
+  websocket:
+    documentation: "README.md#websocket-protocol"
+    client: "background.js"
+    peer_repository:
+      name: "Gamblock-AI-Apps"
+      url: "https://github.com/Gamblock-AI/Gamblock-AI-Apps"
+    peer_relative_path: "windows/runner/gamblock_service.cpp"
+    coordination_required: true
+
+release_runtime_paths:
+  - "manifest.json"
+  - "background.js"
+  - "content_script.js"
+  - "options.html"
+  - "options.js"
+  - "_locales"
+  - "images"

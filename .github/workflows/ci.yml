@@ -17,7 +17,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Verify committed AI context
+        run: bash scripts/verify-ai-context.sh
+      - run: npm run validate:extension
       - run: npm test
+      - run: npm run package:extension
+      - run: npm run verify:package
 
   release-zip:
     # Package the MV3 extension as a ZIP and attach it to a GitHub Release on tags.
@@ -29,13 +34,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Package extension ZIP
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          mkdir -p dist
-          zip -r "dist/gamblock-ai-extension-v${VERSION}.zip" \
-            manifest.json background.js content_script.js \
-            options.html options.js README.md
+          ARCHIVE="dist/gamblock-ai-extension-v${VERSION}.zip"
+          bash scripts/package-extension.sh "$ARCHIVE"
+          bash scripts/verify-extension-package.sh "$ARCHIVE"
 
       - name: Create GitHub Release and upload ZIP
         uses: softprops/action-gh-release@v2

@@ -3,9 +3,19 @@
   "version": "1.0.0",
   "description": "Passive DOM sensor for Gamblock AI on Windows. Reads textual page content (title, headings, anchor text) and forwards it to the local **Windows Service** over an authenticated WebSocket for on-device AI classification.",
   "main": "background.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "validate:extension": "node scripts/validate-extension.mjs",
+    "lint": "node --check background.js && node --check content_script.js && node --check options.js && npm run validate:extension",
+    "verify:context": "bash scripts/verify-ai-context.sh",
+    "verify:context:local": "bash scripts/verify-ai-context.sh --allow-untracked",
+    "package:extension": "bash scripts/package-extension.sh",
+    "verify:package": "bash scripts/verify-extension-package.sh",
+    "verify": "npm run verify:context:local && npm run lint"
   },
   "repository": {
     "type": "git",
