@@ -39,6 +39,13 @@ if (manifest) {
 
   if (manifest.background?.service_worker) {
     requireFile(manifest.background.service_worker);
+    for (const path of [
+      'background/scan_payload.js',
+      'background/pairing_store.js',
+      'background/local_connection.js',
+    ]) {
+      requireFile(path);
+    }
   } else {
     errors.push('manifest.json must define background.service_worker');
   }

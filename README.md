@@ -44,7 +44,9 @@ To try the unpacked extension:
 ## Files
 
 - `manifest.json` — MV3 configuration and runtime asset references
-- `background.js` — authenticated local WebSocket relay and keepalive
+- `background.js` — MV3 orchestration for the authenticated local relay
+- `background/` — small modules for bounded snapshots, pairing storage, and
+  local WebSocket lifecycle
 - `content_script.js` — classic content script for passive DOM extraction
 - `options.html` / `options.js` — pairing-token configuration
 - `_locales/` — Indonesian and English extension messages
@@ -71,6 +73,10 @@ for blocking/redirecting a page.
 2. The user opens the extension options page.
 3. The user pastes and saves the token in `chrome.storage.local`.
 4. `background.js` reconnects and authenticates before relaying DOM scans.
+   A bounded, in-memory latest snapshot per tab may wait for the current
+   authentication handshake; it is never persisted and is discarded when the
+   connection closes or pairing is absent, replaced, or denied.
+   A rejected token is not retried until the user saves a new pairing token.
 
 ## WebSocket protocol
 
@@ -87,7 +93,7 @@ Connection: `ws://127.0.0.1:9090`
 Changing these message shapes requires a coordinated change with
 repository `Gamblock-AI-Apps`
 (`https://github.com/Gamblock-AI/Gamblock-AI-Apps`), peer-relative path
-`windows/runner/gamblock_service.cpp`.
+`windows/service/protection_service_websocket.cpp`.
 
 ## Packaging
 
@@ -106,5 +112,5 @@ and verifies every manifest-referenced file.
 
 `AGENTS.md` is the canonical rule file. `docs/ai/README.md` describes the
 clone-safe workflow and current capability status; `docs/ai/manifest.yaml`
-records context version `2026-07-16.3` and the validation commands. Provider
+records context version `2026-07-16.5` and the validation commands. Provider
 entrypoints in this repository all resolve back to those local files.

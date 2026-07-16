@@ -1,6 +1,6 @@
 # Gamblock AI — Browser Extension Agent Rules
 
-Context version: `2026-07-16.4`
+Context version: `2026-07-16.5`
 
 This repository is the standalone Chrome/Edge Manifest V3 extension for
 Gamblock AI. It must remain understandable and safe when cloned without any
@@ -46,7 +46,7 @@ coordinated cross-repository change and must update all of the following:
 - the protocol section in `README.md`;
 - the peer Windows implementation in repository `Gamblock-AI-Apps`
   (`https://github.com/Gamblock-AI/Gamblock-AI-Apps`), at peer-relative path
-  `windows/runner/gamblock_service.cpp`.
+  `windows/service/protection_service_websocket.cpp`.
 
 Never add block or redirect command handling to `background.js`. A service
 message requesting either action is a protocol violation and must be ignored.
@@ -68,7 +68,8 @@ message requesting either action is a protocol violation and must be ignored.
 ## Files and responsibilities
 
 - `manifest.json` — MV3 registration, permissions, locale, icon, and scripts
-- `background.js` — local WebSocket lifecycle and authenticated relay
+- `background.js` / `background/` — local WebSocket orchestration, bounded
+  payloads, pairing storage, and authenticated relay
 - `content_script.js` — passive DOM extraction only
 - `options.html` / `options.js` — local pairing-token configuration
 - `_locales/` — Chrome message catalogs

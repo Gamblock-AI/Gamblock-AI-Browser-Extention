@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:extension": "node scripts/validate-extension.mjs",
-    "lint": "node --check background.js && node --check content_script.js && node --check options.js && npm run validate:extension",
+    "lint": "node --check background.js && node --check background/*.js && node --check content_script.js && node --check options.js && npm run validate:extension",
     "verify:context": "bash scripts/verify-ai-context.sh",
     "verify:context:local": "bash scripts/verify-ai-context.sh --allow-untracked",
     "package:extension": "bash scripts/package-extension.sh",

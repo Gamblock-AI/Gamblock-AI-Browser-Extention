@@ -4,7 +4,12 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const source = readFileSync(resolve(__dirname, 'background.js'), 'utf8');
+const source = [
+  'background.js',
+  'background/scan_payload.js',
+  'background/pairing_store.js',
+  'background/local_connection.js',
+].map((path) => readFileSync(resolve(__dirname, path), 'utf8')).join('\n');
 
 describe('background.js — passive-sensor invariants (PRD §3.1/§3.3)', () => {
   it('contains NO block/redirect command handling', () => {
@@ -23,26 +28,42 @@ describe('background.js — passive-sensor invariants (PRD §3.1/§3.3)', () => 
   it('only relays dom_scan when connectionAuthenticated', () => {
     expect(source).toMatch(/connectionAuthenticated/);
   });
+
+  it('bounds and keeps scan payloads transient before the handshake', () => {
+    expect(source).toMatch(/MAX_DOM_SCAN_BYTES/);
+    expect(source).toMatch(/pendingScans/);
+    expect(source).not.toMatch(/storage\.local\.set\([^\n]*dom_scan/);
+  });
 });
 
 describe('background.js — module load under stubbed chrome', () => {
-  beforeEach(() => {
+  let messageListener;
+  let storageListener;
+  let WebSocketMock;
+
+  beforeEach(async () => {
     vi.resetModules();
-    globalThis.WebSocket = vi.fn(function () {
+    delete globalThis.GamblockExtensionBackground;
+    globalThis.__GAMBLOCK_TEST__ = true;
+    globalThis.importScripts = undefined;
+    WebSocketMock = vi.fn(function () {
       this.readyState = 0;
       this.send = vi.fn();
       this.close = vi.fn();
     });
+    WebSocketMock.CONNECTING = 0;
+    WebSocketMock.OPEN = 1;
+    globalThis.WebSocket = WebSocketMock;
     globalThis.chrome = {
       runtime: {
         id: 'test-extension-id', // simulate installed extension
-        onMessage: { addListener: vi.fn() },
+        onMessage: { addListener: vi.fn((listener) => { messageListener = listener; }) },
         onInstalled: { addListener: vi.fn() },
         sendMessage: vi.fn(),
       },
       storage: {
         local: { get: (_k, cb) => cb && cb({}), set: (_o, cb) => cb && cb() },
-        onChanged: { addListener: vi.fn() },
+        onChanged: { addListener: vi.fn((listener) => { storageListener = listener; }) },
       },
       alarms: {
         create: vi.fn(),
@@ -51,6 +72,9 @@ describe('background.js — module load under stubbed chrome', () => {
       tabs: { query: (_q, cb) => cb && cb([]) },
     };
     globalThis.console = { ...console, log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    await import('./background/scan_payload.js');
+    await import('./background/pairing_store.js');
+    await import('./background/local_connection.js');
   });
 
   it('imports without throwing and registers listeners', async () => {
@@ -64,5 +88,70 @@ describe('background.js — module load under stubbed chrome', () => {
       { periodInMinutes: 1 },
     );
     expect(globalThis.chrome.alarms.onAlarm.addListener).toHaveBeenCalled();
+  });
+
+  it('queues the first scan until auth_ok, then relays the existing wire shape', async () => {
+    globalThis.chrome.storage.local.get = (_k, cb) => cb({ gamblock_pairing_token: 'a'.repeat(64) });
+    await import('./background.js');
+    await Promise.resolve();
+    const socket = WebSocketMock.mock.instances[0];
+    socket.readyState = WebSocketMock.OPEN;
+    socket.onopen();
+    expect(socket.send).toHaveBeenCalledWith(JSON.stringify({ type: 'auth', token: 'a'.repeat(64) }));
+
+    messageListener(
+      {
+        type: 'dom_content',
+        url: 'https://example.test/path',
+        title: 'Example',
+        headings: ['Heading'],
+        anchorTexts: ['Read more'],
+      },
+      { tab: { id: 7 } },
+      vi.fn(),
+    );
+    expect(socket.send).toHaveBeenCalledTimes(1);
+
+    socket.onmessage({ data: JSON.stringify({ type: 'auth_ok' }) });
+    expect(socket.send).toHaveBeenCalledTimes(2);
+    const scan = JSON.parse(socket.send.mock.calls[1][0]);
+    expect(scan).toMatchObject({
+      type: 'dom_scan',
+      url: 'https://example.test/path',
+      title: 'Example',
+      headings: ['Heading'],
+      anchorTexts: ['Read more'],
+    });
+    expect(typeof scan.timestamp).toBe('number');
+  });
+
+  it('replaces an active socket immediately when the pairing token changes', async () => {
+    globalThis.chrome.storage.local.get = (_k, cb) => cb({ gamblock_pairing_token: 'a'.repeat(64) });
+    await import('./background.js');
+    await Promise.resolve();
+    const firstSocket = WebSocketMock.mock.instances[0];
+    firstSocket.readyState = WebSocketMock.OPEN;
+    firstSocket.onopen();
+
+    globalThis.chrome.storage.local.get = (_k, cb) => cb({ gamblock_pairing_token: 'b'.repeat(64) });
+    storageListener({ gamblock_pairing_token: { oldValue: 'a'.repeat(64), newValue: 'b'.repeat(64) } }, 'local');
+    await vi.waitFor(() => expect(WebSocketMock).toHaveBeenCalledTimes(2));
+
+    expect(firstSocket.close).toHaveBeenCalled();
+    expect(WebSocketMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops retrying a rejected pairing token until the user changes it', async () => {
+    globalThis.chrome.storage.local.get = (_k, cb) => cb({ gamblock_pairing_token: 'a'.repeat(64) });
+    await import('./background.js');
+    await Promise.resolve();
+    const socket = WebSocketMock.mock.instances[0];
+    socket.readyState = WebSocketMock.OPEN;
+    socket.onopen();
+    socket.onmessage({ data: JSON.stringify({ type: 'auth_denied' }) });
+    socket.onclose();
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(WebSocketMock).toHaveBeenCalledTimes(1);
   });
 });

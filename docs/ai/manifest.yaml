@@ -1,5 +1,5 @@
 schema_version: 1
-context_version: "2026-07-16.4"
+context_version: "2026-07-16.5"
 component: "browser_extension"
 repository_mode: "standalone"
 canonical_rules: "AGENTS.md"
@@ -58,7 +58,7 @@ contracts:
     peer_repository:
       name: "Gamblock-AI-Apps"
       url: "https://github.com/Gamblock-AI/Gamblock-AI-Apps"
-    peer_relative_path: "windows/runner/gamblock_service.cpp"
+    peer_relative_path: "windows/service/protection_service_websocket.cpp"
     coordination_required: true
 
 release_runtime_paths:

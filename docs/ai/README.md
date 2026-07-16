@@ -1,6 +1,6 @@
 # AI Workflow — Browser Extension
 
-Context version: `2026-07-16.4`
+Context version: `2026-07-16.5`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -23,12 +23,12 @@ They must not define a competing architecture.
 |---|---|---|
 | DOM title/headings/anchor extraction | Implemented | `content_script.js` |
 | Pairing-token storage | Implemented | `options.js` |
-| Authenticated loopback relay | Implemented | `background.js` |
-| MV3 reconnect/keepalive | Implemented | `background.js` |
+| Authenticated loopback relay | Implemented | `background/`; bounded in-memory latest scan waits only for the current authentication handshake |
+| MV3 reconnect/keepalive | Implemented | `background/local_connection.js` |
 | Content classification | Forbidden here | Windows Service boundary |
 | Blocking or redirect | Forbidden here | `AGENTS.md`, invariant tests |
 | Pattern Interrupt UI | Forbidden here | Windows Service/client boundary |
-| End-to-end Windows protection | External dependency | Separate Flutter/Windows repository |
+| End-to-end Windows protection | External code-complete prototype | peer service/agent source and CMake wiring exist; Windows build/VM evidence remains outside this repository |
 
 Do not describe an external dependency as implemented merely because its
 protocol is documented here.

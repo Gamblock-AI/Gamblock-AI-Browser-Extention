@@ -15,6 +15,7 @@ node scripts/validate-extension.mjs
 zip -rq "$archive" \
   manifest.json \
   background.js \
+  background \
   content_script.js \
   options.html \
   options.js \
