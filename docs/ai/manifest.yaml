@@ -1,5 +1,5 @@
 schema_version: 1
-context_version: "2026-07-16.5"
+context_version: "2026-07-18.3"
 component: "browser_extension"
 repository_mode: "standalone"
 canonical_rules: "AGENTS.md"
