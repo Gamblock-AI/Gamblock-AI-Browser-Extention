@@ -1,6 +1,6 @@
 # AI Workflow — Browser Extension
 
-Context version: `2026-07-20.3`
+Context version: `2026-07-20.4`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
