@@ -1,6 +1,6 @@
 # Gamblock AI — Browser Extension Agent Rules
 
-Context version: `2026-07-18.3`
+Context version: `2026-07-19.1`
 
 This repository is the standalone Chrome/Edge Manifest V3 extension for
 Gamblock AI. It must remain understandable and safe when cloned without any
