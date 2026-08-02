@@ -1,6 +1,6 @@
 # AI Workflow — Browser Extension
 
-Context version: `2026-07-31.15`
+Context version: `2026-08-02.23`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -22,6 +22,7 @@ They must not define a competing architecture.
 | Capability | Status in this repository | Evidence |
 |---|---|---|
 | DOM title/headings/anchor extraction | Implemented | `content_script.js` |
+| Phase 4 timing metadata | Implemented local-only support | content script adds extraction duration and a transient scan-start clock value; the background bounds both values and the peer service never persists the timestamp or sends it remotely |
 | Pairing-token storage | Implemented | `options.js` |
 | Authenticated loopback relay | Implemented | `background/`; bounded in-memory latest scan waits only for the current authentication handshake |
 | MV3 reconnect/keepalive | Implemented | `background/local_connection.js` |

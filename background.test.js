@@ -106,6 +106,8 @@ describe('background.js — module load under stubbed chrome', () => {
         title: 'Example',
         headings: ['Heading'],
         anchorTexts: ['Read more'],
+        extractionDurationMs: 3.25,
+        scanStartedAtMs: 1_700_000_000_000,
       },
       { tab: { id: 7 } },
       vi.fn(),
@@ -121,6 +123,8 @@ describe('background.js — module load under stubbed chrome', () => {
       title: 'Example',
       headings: ['Heading'],
       anchorTexts: ['Read more'],
+      extractionDurationMs: 3.25,
+      scanStartedAtMs: 1_700_000_000_000,
     });
     expect(typeof scan.timestamp).toBe('number');
   });

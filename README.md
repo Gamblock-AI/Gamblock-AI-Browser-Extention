@@ -86,7 +86,11 @@ Connection: `ws://127.0.0.1:9090`
 2. Service replies `{ "type": "auth_ok" }` (accepted) or `{ "type": "auth_denied" }`
    (rejected, then closes the socket).
 3. On `auth_ok`, the extension relays DOM scans as
-   `{ "type": "dom_scan", "url", "title", "headings", "anchorTexts", "timestamp" }`.
+   `{ "type": "dom_scan", "url", "title", "headings", "anchorTexts", "extractionDurationMs", "scanStartedAtMs", "timestamp" }`.
+   `extractionDurationMs` is a bounded local performance measurement used only
+   by the opt-in Phase 4 latency evidence path. `scanStartedAtMs` is used only
+   in memory to bridge the extension/service clocks and is never written to
+   evidence. Neither field contains page content or reaches the backend.
 4. The service must never instruct the extension to block or redirect; that
    authority stays in the local Windows Service.
 
@@ -112,5 +116,5 @@ and verifies every manifest-referenced file.
 
 `AGENTS.md` is the canonical rule file. `docs/ai/README.md` describes the
 clone-safe workflow and current capability status; `docs/ai/manifest.yaml`
-records context version `2026-07-31.15` and the validation commands. Provider
+records context version `2026-08-02.23` and the validation commands. Provider
 entrypoints in this repository all resolve back to those local files.

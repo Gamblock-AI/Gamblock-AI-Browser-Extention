@@ -33,14 +33,22 @@ if (typeof globalThis !== 'undefined' && globalThis.__GAMBLOCK_TEST__ === true) 
 // Forward the DOM snapshot to the background worker, which relays it to the
 // local Windows Service over the authenticated WebSocket.
 function sendDOM() {
+  const scanStartedAtMs = Date.now();
+  const extractionStartedAt = performance.now();
   const dom = extractDOM();
+  const extractionDurationMs = Math.max(
+    0,
+    performance.now() - extractionStartedAt,
+  );
   chrome.runtime.sendMessage(
     {
       type: 'dom_content',
       url: window.location.href,
       title: dom.title,
       headings: dom.headings,
-      anchorTexts: dom.anchorTexts
+      anchorTexts: dom.anchorTexts,
+      extractionDurationMs,
+      scanStartedAtMs,
     },
     () => {
       // Acknowledged by background. No further action.

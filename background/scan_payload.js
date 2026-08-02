@@ -48,6 +48,18 @@
     return result;
   }
 
+  function boundedDuration(value) {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0
+      ? Math.min(value, 10_000)
+      : 0;
+  }
+
+  function boundedEpochMilliseconds(value) {
+    return typeof value === 'number' && Number.isFinite(value) && value > 0
+      ? Math.floor(value)
+      : Date.now();
+  }
+
   function makeDomScan(message) {
     if (!message || message.type !== 'dom_content') {
       return null;
@@ -58,6 +70,8 @@
     }
     const scan = {
       type: 'dom_scan',
+      extractionDurationMs: boundedDuration(message.extractionDurationMs),
+      scanStartedAtMs: boundedEpochMilliseconds(message.scanStartedAtMs),
       url,
       title: truncateUtf8(message.title, MAX_TITLE_BYTES).trim(),
       headings: boundedStrings(message.headings, MAX_HEADINGS, MAX_HEADING_BYTES),

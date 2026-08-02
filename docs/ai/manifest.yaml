@@ -1,5 +1,5 @@
 schema_version: 1
-context_version: "2026-07-31.15"
+context_version: "2026-08-02.23"
 component: "browser_extension"
 repository_mode: "standalone"
 canonical_rules: "AGENTS.md"
@@ -9,7 +9,8 @@ shared_contracts:
   proposal_traceability: 1
   local_ai_lint_policy: 1
   privacy_boundary: 1
-  websocket_loopback: 1
+  websocket_loopback: 2
+  phase4_evidence: 1
 
 required_context:
   - "AGENTS.md"
@@ -43,6 +44,7 @@ proposal_requirements:
   - "PKM-AI-003"
   - "PKM-PRIV-001"
   - "PKM-PRIV-002"
+  - "PKM-EVAL-003"
 
 invariants:
   - "passive_sensor_only"
