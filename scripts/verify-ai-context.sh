@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-context_version="2026-08-02.23"
+context_version="2026-08-02.24"
 allow_untracked=false
 
 usage() {
