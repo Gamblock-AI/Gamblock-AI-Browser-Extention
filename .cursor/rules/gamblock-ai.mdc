@@ -1,20 +1,6 @@
 ---
 description: Gamblock AI browser extension safety and workflow rules
-globs:
 alwaysApply: true
 ---
 
-# Gamblock AI Browser Extension
-
-Read and follow @AGENTS.md, @docs/ai/README.md, and `README.md` in this
-repository. Context version: `2026-07-15.2`.
-
-The extension is a passive sensor only. It must not classify, block, redirect,
-close tabs, render Pattern Interrupt UI, send browsing data to a backend, or
-change the documented WebSocket shapes independently. Relay is permitted only
-to the authenticated loopback Windows Service.
-
-`content_script.js` is a classic MV3 content script; do not introduce top-level
-ESM syntax. Ensure manifest-referenced locales, scripts, pages, and images are
-present in every release ZIP. Run only `npm run lint` plus context validation
-by default; tests and package verification require explicit user request.
+@AGENTS.md

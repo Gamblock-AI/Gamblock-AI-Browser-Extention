@@ -1,6 +1,7 @@
 # AI Workflow — Browser Extension
 
-Context version: `2026-08-02.24`
+
+Jika ada pertentangan dengan `pkm_proposal.md`, proposal PKM adalah sumber mutlak.
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -22,7 +23,6 @@ They must not define a competing architecture.
 | Capability | Status in this repository | Evidence |
 |---|---|---|
 | DOM title/headings/anchor extraction | Implemented | `content_script.js` |
-| Phase 4 timing metadata | Implemented local-only support | content script adds extraction duration and a transient scan-start clock value; the background bounds both values and the peer service never persists the timestamp or sends it remotely |
 | Pairing-token storage | Implemented | `options.js` |
 | Authenticated loopback relay | Implemented | `background/`; bounded in-memory latest scan waits only for the current authentication handshake |
 | MV3 reconnect/keepalive | Implemented | `background/local_connection.js` |
@@ -34,9 +34,9 @@ They must not define a competing architecture.
 Do not describe an external dependency as implemented merely because its
 protocol is documented here.
 
-Proposal traceability: this repository supports local URL and DOM sensing for
-`PKM-AI-002` and `PKM-AI-003`. It does not satisfy Hybrid Analysis, blocking,
-or Pattern Interrupt without the Windows service/client and model artifacts.
+This repository supports local URL and DOM sensing. It does not satisfy Hybrid
+Analysis, blocking, or Pattern Interrupt without the Windows service/client and
+model artifacts.
 
 ## Workflow
 

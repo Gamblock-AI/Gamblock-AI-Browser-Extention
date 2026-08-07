@@ -1,6 +1,5 @@
 # Gamblock AI — Browser Extension Agent Rules
 
-Context version: `2026-08-02.24`
 
 This repository is the standalone Chrome/Edge Manifest V3 extension for
 Gamblock AI. It must remain understandable and safe when cloned without any
@@ -79,9 +78,9 @@ message requesting either action is a protocol violation and must be ignored.
 ## Proposal role and validation policy
 
 The proposal requires local URL + DOM Hybrid Analysis on Windows. This
-extension implements only the supporting local sensor portion of `PKM-AI-002`
-and `PKM-AI-003`; the Windows service/client must perform rules, BoW, Logistic
-Regression, blocking, and Pattern Interrupt.
+extension implements only the supporting local sensor portion; the Windows
+service/client must perform rules, BoW, Logistic Regression, blocking, and
+Pattern Interrupt.
 
 Use npm and the committed `package-lock.json`. On a fresh clone, run `npm ci`
 only when dependencies are absent. During normal AI development, run only
