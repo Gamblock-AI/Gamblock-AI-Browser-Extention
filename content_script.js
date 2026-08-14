@@ -67,12 +67,25 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
     window.addEventListener('load', sendDOM);
   }
 
-  // Re-run on significant DOM changes (SPA navigation)
+  // Debounced forwarder shared by the navigation, Enter, and submit triggers
+  // so a burst of committed signals still yields a single snapshot.
+  let sendTimer = null;
+  function scheduleSend() {
+    if (sendTimer) {
+      clearTimeout(sendTimer);
+    }
+    sendTimer = setTimeout(() => {
+      sendTimer = null;
+      sendDOM();
+    }, 500);
+  }
+
+  // Re-run on committed navigation (URL change, e.g. SPA routing)
   let lastUrl = window.location.href;
   const observer = new MutationObserver(() => {
     if (window.location.href !== lastUrl) {
       lastUrl = window.location.href;
-      setTimeout(sendDOM, 500);
+      scheduleSend();
     }
   });
   observer.observe(document.documentElement, {
@@ -80,4 +93,24 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
     subtree: true,
     characterData: false
   });
+
+  // Activate on Enter (excluding IME composition) and form submits. Keystroke
+  // content itself is never read: extraction only happens after the user
+  // commits an action, never on plain text edits or DOM mutations.
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Enter' && !event.isComposing) {
+        scheduleSend();
+      }
+    },
+    true
+  );
+  document.addEventListener(
+    'submit',
+    () => {
+      scheduleSend();
+    },
+    true
+  );
 }

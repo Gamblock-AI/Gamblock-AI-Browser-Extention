@@ -3,7 +3,7 @@
 
 Jika ada pertentangan dengan `pkm_proposal.md`, proposal PKM adalah sumber mutlak.
 
-Context version: `2026-08-13.1`
+Context version: `2026-08-14.3`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -24,7 +24,7 @@ They must not define a competing architecture.
 
 | Capability | Status in this repository | Evidence |
 |---|---|---|
-| DOM title/headings/anchor extraction | Implemented | `content_script.js` |
+| DOM title/headings/anchor extraction | Implemented | `content_script.js`; extraction fires only on committed actions — page load, URL change, Enter key press (excluding IME composition), or form submit — never on keystrokes or plain DOM mutations |
 | Pairing-token storage | Implemented | `options.js` |
 | Authenticated loopback relay | Implemented | `background/`; bounded in-memory latest scan waits only for the current authentication handshake |
 | MV3 reconnect/keepalive | Implemented | `background/local_connection.js` |

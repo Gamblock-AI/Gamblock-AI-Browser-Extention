@@ -9,6 +9,9 @@ local Windows Service for on-device classification.
 This extension:
 
 - extracts the page title, up to 10 headings, and up to 50 anchor texts;
+- extracts **only on committed actions**, never while the user types: page
+  load, committed URL change (navigation), an Enter key press (excluding IME
+  composition), or a form submit;
 - relays the snapshot to `ws://127.0.0.1:9090` only after pairing-token
   authentication;
 - does not classify content, block pages, redirect tabs, or display Pattern
@@ -116,5 +119,5 @@ and verifies every manifest-referenced file.
 
 `AGENTS.md` is the canonical rule file. `docs/ai/README.md` describes the
 clone-safe workflow and current capability status; `docs/ai/manifest.yaml`
-records context version `2026-08-13.1` and the validation commands. Provider
+records context version `2026-08-14.3` and the validation commands. Provider
 entrypoints in this repository all resolve back to those local files.
