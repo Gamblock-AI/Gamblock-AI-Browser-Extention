@@ -2,7 +2,10 @@
 
 Chrome/Edge Manifest V3 extension that acts as a passive DOM sensor for
 Gamblock AI on Windows. It reads limited textual page data and relays it to the
-local Windows Service for on-device classification.
+local Windows Service for on-device classification. The Windows service
+accepts `chrome-extension://` origins, so other Chrome-family browsers (for
+example Opera, which loads standard MV3 extensions) can use this same unpacked
+build; per-browser functional verification is still required.
 
 ## Safety boundary
 
