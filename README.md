@@ -15,6 +15,8 @@ This extension:
 - extracts **only on committed actions**, never while the user types: page
   load, committed URL change (navigation), an Enter key press (excluding IME
   composition), or a form submit;
+- coalesces bursts from those committed actions with a 50 ms local debounce so
+  the Windows protection path can stay within its sub-200 ms target;
 - relays the snapshot to `ws://127.0.0.1:9090` only after pairing-token
   authentication;
 - does not classify content, block pages, redirect tabs, or display Pattern
@@ -122,5 +124,5 @@ and verifies every manifest-referenced file.
 
 `AGENTS.md` is the canonical rule file. `docs/ai/README.md` describes the
 clone-safe workflow and current capability status; `docs/ai/manifest.yaml`
-records context version `2026-08-15.1` and the validation commands. Provider
+records context version `2026-08-28.6` and the validation commands. Provider
 entrypoints in this repository all resolve back to those local files.

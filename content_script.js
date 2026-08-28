@@ -68,7 +68,10 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
   }
 
   // Debounced forwarder shared by the navigation, Enter, and submit triggers
-  // so a burst of committed signals still yields a single snapshot.
+  // so a burst of committed signals still yields a single snapshot. Keep the
+  // debounce below the Windows protection latency budget; extraction is still
+  // never triggered by plain keystrokes or DOM mutations.
+  const committedActionDebounceMs = 50;
   let sendTimer = null;
   function scheduleSend() {
     if (sendTimer) {
@@ -77,7 +80,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
     sendTimer = setTimeout(() => {
       sendTimer = null;
       sendDOM();
-    }, 500);
+    }, committedActionDebounceMs);
   }
 
   // Re-run on committed navigation (URL change, e.g. SPA routing)

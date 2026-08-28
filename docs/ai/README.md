@@ -24,7 +24,7 @@ They must not define a competing architecture.
 
 | Capability | Status in this repository | Evidence |
 |---|---|---|
-| DOM title/headings/anchor extraction | Implemented | `content_script.js`; extraction fires only on committed actions — page load, URL change, Enter key press (excluding IME composition), or form submit — never on keystrokes or plain DOM mutations |
+| DOM title/headings/anchor extraction | Implemented | `content_script.js`; extraction fires only on committed actions — page load, URL change, Enter key press (excluding IME composition), or form submit — never on keystrokes or plain DOM mutations; committed-action bursts use a 50 ms local debounce for the Windows sub-200 ms path |
 | Pairing-token storage | Implemented | `options.js` |
 | Authenticated loopback relay | Implemented | `background/`; bounded in-memory latest scan waits only for the current authentication handshake |
 | MV3 reconnect/keepalive | Implemented | `background/local_connection.js` |

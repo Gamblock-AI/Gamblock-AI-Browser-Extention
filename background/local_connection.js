@@ -17,6 +17,7 @@
       this.pairingConfigured = false;
       this.pairingRejected = false;
       this.connectionGeneration = 0;
+      this.connecting = false;
       this.pendingScans = new Map();
     }
 
@@ -92,6 +93,14 @@
         return;
       }
       this.queuePendingScan(key, scan.payload);
+      // A committed navigation can be the first signal after the Windows
+      // service has restarted. Nudge the connection immediately instead of
+      // waiting for the long reconnect timer; the latest scan remains bounded
+      // and in memory while authentication completes.
+      if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
+        this.clearReconnectTimer();
+        this.connect();
+      }
     }
 
     flushPendingScans(socket) {
@@ -107,6 +116,23 @@
     }
 
     async connect() {
+      if (this.connecting) {
+        return;
+      }
+      const attemptGeneration = this.connectionGeneration;
+      this.connecting = true;
+      try {
+        await this.connectInternal();
+      } finally {
+        this.connecting = false;
+        if (attemptGeneration !== this.connectionGeneration &&
+            this.pairingConfigured && !this.pairingRejected && !this.ws) {
+          this.connect();
+        }
+      }
+    }
+
+    async connectInternal() {
       if (this.pairingRejected) {
         return;
       }
