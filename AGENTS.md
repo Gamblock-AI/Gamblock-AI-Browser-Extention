@@ -13,7 +13,7 @@ other Gamblock repository. Read these files before changing code:
 Provider-specific files are entrypoints only. If they conflict with this file,
 this file wins.
 
-Context version: `2026-08-28.4`
+Context version: `2026-08-28.6`
 
 ## Product boundary: passive sensor only
 
