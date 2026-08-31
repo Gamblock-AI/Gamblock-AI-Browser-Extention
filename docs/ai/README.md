@@ -3,7 +3,7 @@
 
 Jika ada pertentangan dengan `pkm_proposal.md`, proposal PKM adalah sumber mutlak.
 
-Context version: `2026-08-28.7`
+Context version: `2026-08-31.2`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
