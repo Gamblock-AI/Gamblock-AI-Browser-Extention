@@ -13,7 +13,7 @@ other Gamblock repository. Read these files before changing code:
 Provider-specific files are entrypoints only. If they conflict with this file,
 this file wins.
 
-Context version: `2026-09-02.3`
+Context version: `2026-09-02.4`
 
 ## Product boundary: passive sensor only
 
@@ -109,6 +109,18 @@ Before completing a normal change:
 
 Tests and package smoke checks remain available but run only when the user asks
 for them explicitly.
+
+## Cross-repository testing handoff
+
+When the user explicitly requests extension testing to be retained as project
+evidence, run the relevant extension command and then synchronize the canonical
+report through `../gamblock-ai-testing/docs/tools/run_evaluation.py` with
+`--run-code-tests`. A direct extension command alone is not a completed
+evidence handoff. Inspect both repositories and provide the test receipt
+required by the umbrella/testing context, including public report changes,
+private/local artifacts, validation, and commit/push status. If the testing
+checkout is unavailable, report the exact blocker and do not claim that
+`browser-extention/report.md` was updated.
 
 CI runs the context verifier without `--allow-untracked`; this ensures all
 required AI context files are committed. The flag exists only for validating a

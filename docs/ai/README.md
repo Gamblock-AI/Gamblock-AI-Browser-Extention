@@ -3,7 +3,7 @@
 
 Jika ada pertentangan dengan `pkm_proposal.md`, proposal PKM adalah sumber mutlak.
 
-Context version: `2026-09-02.3`
+Context version: `2026-09-02.4`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -101,4 +101,7 @@ For a meaningful workflow, boundary, or capability-status change:
 Runtime and cross-repository evaluation evidence is owned by the public
 [Gamblock-AI-Testing repository](https://github.com/Gamblock-AI/Gamblock-AI-Testing).
 This extension snapshot records implementation status only; it must not
-duplicate the canonical testing summary or publish browsing data.
+duplicate the canonical testing summary or publish browsing data. When an
+explicit extension test is requested for project evidence, the agent must
+synchronize `browser-extention/report.md` and provide a test receipt listing
+public and private/local data changes.
