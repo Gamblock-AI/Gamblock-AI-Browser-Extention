@@ -124,5 +124,5 @@ and verifies every manifest-referenced file.
 
 `AGENTS.md` is the canonical rule file. `docs/ai/README.md` describes the
 clone-safe workflow and current capability status; `docs/ai/manifest.yaml`
-records context version `2026-09-02.4` and the validation commands. Provider
+records context version `2026-09-02.5` and the validation commands. Provider
 entrypoints in this repository all resolve back to those local files.
