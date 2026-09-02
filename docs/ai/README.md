@@ -3,7 +3,7 @@
 
 Jika ada pertentangan dengan `pkm_proposal.md`, proposal PKM adalah sumber mutlak.
 
-Context version: `2026-08-31.2`
+Context version: `2026-09-02.1`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -95,3 +95,10 @@ For a meaningful workflow, boundary, or capability-status change:
 2. update the capability table and relevant README section;
 3. run `bash scripts/verify-ai-context.sh --allow-untracked` locally;
 4. ensure the final committed tree passes the verifier without the flag.
+
+## Cross-repository testing
+
+Runtime and cross-repository evaluation evidence is owned by the public
+[Gamblock-AI-Testing repository](https://github.com/Gamblock-AI/Gamblock-AI-Testing).
+This extension snapshot records implementation status only; it must not
+duplicate the canonical testing summary or publish browsing data.
