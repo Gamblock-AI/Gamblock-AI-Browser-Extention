@@ -7,6 +7,11 @@ Gamblock-AI prepares two review artifacts from the same passive-sensor source:
 | `gamblock-ai-extension-chromium-v<version>.zip` | Chrome Web Store and Microsoft Edge Add-ons | `manifest.json` |
 | `gamblock-ai-extension-firefox-v<version>.zip` | Firefox Add-ons (AMO) | `manifest.firefox.json` |
 
+The GitHub Release additionally contains `gamblock-ai-extension-SHA256SUMS.txt`
+and `gamblock-ai-extension-compatibility-v<version>.json`. They are for
+integrity checks and Windows deployment handoff only; submit only the matching
+browser ZIP to its store.
+
 Publishing is a manual external release action. Do not submit either artifact
 until its package verification, privacy disclosure, permission justification,
 and store listing have been reviewed by the release owner. Store approval is

@@ -1,5 +1,5 @@
 schema_version: 1
-context_version: "2026-09-13.5"
+context_version: "2026-09-14.1"
 component: "browser_extension"
 repository_mode: "standalone"
 canonical_rules: "AGENTS.md"
@@ -63,3 +63,12 @@ release_runtime_paths:
   - "options.js"
   - "_locales"
   - "images"
+release_tooling_paths:
+  - "scripts/create-release-metadata.mjs"
+  - "scripts/package-extension.sh"
+  - "scripts/verify-extension-package.sh"
+release_metadata:
+  websocket_protocol: 2
+  sidecars:
+    - "gamblock-ai-extension-SHA256SUMS.txt"
+    - "gamblock-ai-extension-compatibility-v<version>.json"

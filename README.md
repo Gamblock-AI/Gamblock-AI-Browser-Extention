@@ -68,7 +68,7 @@ Chrome Web Store, Microsoft Edge Add-ons, or Firefox Add-ons artifact.
 - `options.html` / `options.js` — pairing-token configuration
 - `_locales/` — Indonesian and English extension messages
 - `images/icon.png` — icon used at 16, 48, and 128 pixels
-- `scripts/` — context, manifest, and release-package verification
+- `scripts/` — context, manifest, release-package, and release-metadata verification
 
 ## Permissions
 
@@ -145,9 +145,20 @@ the selected manifest as `manifest.json`, background/content scripts, options
 page, all `_locales/` catalogs, and `images/` assets. Package verification
 extracts both ZIPs and verifies every manifest-referenced file.
 
+Tagged releases use the immutable `vMAJOR.MINOR.PATCH` tag as the extension
+version. Both manifests must contain the exact tag version; the release job
+fails before upload when they differ. The GitHub Release also contains a
+`gamblock-ai-extension-SHA256SUMS.txt` file and a
+`gamblock-ai-extension-compatibility-v<version>.json` sidecar describing the
+package hashes and the Windows loopback WebSocket protocol version. These
+sidecars are release metadata only and are not submitted to browser stores.
+Extension releases are versioned independently from the Flutter Apps release;
+the compatibility sidecar records the stable protocol boundary without making
+either release depend on the other.
+
 ## AI contributor context
 
 `AGENTS.md` is the canonical rule file. `docs/ai/README.md` describes the
 clone-safe workflow and current capability status; `docs/ai/manifest.yaml`
-records context version `2026-09-13.5` and the validation commands. Provider
+records context version `2026-09-14.1` and the validation commands. Provider
 entrypoints in this repository all resolve back to those local files.

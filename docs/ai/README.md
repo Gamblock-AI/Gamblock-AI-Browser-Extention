@@ -3,7 +3,7 @@
 
 Jika ada pertentangan dengan `pkm_proposal.md`, proposal PKM adalah sumber mutlak.
 
-Context version: `2026-09-13.5`
+Context version: `2026-09-14.1`
 
 This directory makes the extension repository usable as a standalone clone.
 No parent monorepo, private prompt, or sibling checkout is required to
@@ -28,7 +28,7 @@ They must not define a competing architecture.
 | Pairing-token storage | Implemented | `options.js` |
 | Authenticated loopback relay | Implemented | Mutual protocol-v2 HMAC challenge/response never transmits the pairing token; scans are bounded in memory |
 | Active source-context binding | Implemented | Only an active top-level tab in the focused window receives an opaque `scan_id`; probes return state only and keep tab/window IDs in extension memory |
-| Chromium and Firefox MV3 packaging | Implemented; store publication pending | `manifest.json`, `manifest.firefox.json`, dual package scripts, and `docs/store-publishing.md` |
+| Chromium and Firefox MV3 packaging | Implemented; store publication pending | `manifest.json`, `manifest.firefox.json`, dual package scripts, strict tag/manifest version checks, release checksum and compatibility sidecars, and `docs/store-publishing.md` |
 | MV3 reconnect/keepalive | Implemented | `background/local_connection.js` |
 | Content classification | Forbidden here | Windows Service boundary |
 | Blocking or redirect | Forbidden here | `AGENTS.md`, invariant tests |

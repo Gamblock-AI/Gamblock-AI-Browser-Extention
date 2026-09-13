@@ -13,7 +13,7 @@ other Gamblock repository. Read these files before changing code:
 Provider-specific files are entrypoints only. If they conflict with this file,
 this file wins.
 
-Context version: `2026-09-13.5`
+Context version: `2026-09-14.1`
 
 ## Product boundary: passive sensor only
 
@@ -67,7 +67,8 @@ message requesting either action is a protocol violation and must be ignored.
 - Keep permissions minimal and explain every permission in `README.md`.
 - Every path referenced by the Chromium and Firefox manifests, including
   locale and icon assets, must exist and be included in the matching release
-  ZIP.
+  ZIP. Tagged release packages must also match the tag version and publish
+  their checksum and compatibility sidecars alongside the ZIPs.
 - Do not introduce remote code, remotely hosted scripts, or telemetry.
 
 ## Files and responsibilities

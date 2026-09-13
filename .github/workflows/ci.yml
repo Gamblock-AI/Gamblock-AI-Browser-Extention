@@ -40,17 +40,40 @@ jobs:
 
       - name: Package extension ZIP
         run: |
+          set -euo pipefail
           VERSION="${GITHUB_REF_NAME#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must use vMAJOR.MINOR.PATCH: $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
           CHROMIUM_ARCHIVE="dist/gamblock-ai-extension-chromium-v${VERSION}.zip"
           FIREFOX_ARCHIVE="dist/gamblock-ai-extension-firefox-v${VERSION}.zip"
-          bash scripts/package-extension.sh chromium "$CHROMIUM_ARCHIVE"
-          bash scripts/verify-extension-package.sh chromium "$CHROMIUM_ARCHIVE"
-          bash scripts/package-extension.sh firefox "$FIREFOX_ARCHIVE"
-          bash scripts/verify-extension-package.sh firefox "$FIREFOX_ARCHIVE"
+          METADATA="dist/gamblock-ai-extension-compatibility-v${VERSION}.json"
+          CHECKSUMS="dist/gamblock-ai-extension-SHA256SUMS.txt"
+          bash scripts/package-extension.sh chromium "$CHROMIUM_ARCHIVE" "$VERSION"
+          bash scripts/verify-extension-package.sh chromium "$CHROMIUM_ARCHIVE" "$VERSION"
+          bash scripts/package-extension.sh firefox "$FIREFOX_ARCHIVE" "$VERSION"
+          bash scripts/verify-extension-package.sh firefox "$FIREFOX_ARCHIVE" "$VERSION"
+          node scripts/create-release-metadata.mjs \
+            --version "$VERSION" \
+            --commit "$GITHUB_SHA" \
+            --chromium "$CHROMIUM_ARCHIVE" \
+            --firefox "$FIREFOX_ARCHIVE" \
+            --output "$METADATA"
+          (
+            cd dist
+            sha256sum "$(basename "$CHROMIUM_ARCHIVE")" \
+              "$(basename "$FIREFOX_ARCHIVE")" \
+              "$(basename "$METADATA")" > "$(basename "$CHECKSUMS")"
+            sha256sum -c "$(basename "$CHECKSUMS")"
+          )
 
       - name: Create GitHub Release and upload ZIP
         uses: softprops/action-gh-release@v2
         with:
           name: Gamblock-AI Browser Extension ${{ github.ref_name }}
           generate_release_notes: true
-          files: dist/gamblock-ai-extension-*.zip
+          files: |
+            dist/gamblock-ai-extension-*.zip
+            dist/gamblock-ai-extension-compatibility-*.json
+            dist/gamblock-ai-extension-SHA256SUMS.txt
