@@ -4,6 +4,7 @@
 if (typeof importScripts === 'function') {
   importScripts(
     'background/scan_payload.js',
+    'background/browser_context.js',
     'background/pairing_store.js',
     'background/local_connection.js',
   );
@@ -14,23 +15,28 @@ if (!backgroundApi) {
   throw new Error('Gamblock background modules did not load');
 }
 
+const sourceContexts = new backgroundApi.SourceContextRegistry();
 const connection = new backgroundApi.LocalProtectionConnection(
   backgroundApi.getPairingToken,
-  backgroundApi.pendingKey,
+  (scanId) => sourceContexts.probe(scanId),
 );
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  const scan = backgroundApi.makeDomScan(message);
-  if (scan) {
-    connection.handleDomScan(scan, sender);
-  }
-  sendResponse({ received: true });
+  void (async () => {
+    const url = typeof message?.url === 'string' ? message.url : '';
+    const scanId = await sourceContexts.acceptSender(sender, url);
+    const scan = scanId ? backgroundApi.makeDomScan(message, scanId) : null;
+    if (scan) connection.handleDomScan(scan);
+    sendResponse({ received: Boolean(scan) });
+  })();
+  return true;
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
   const hasToken = backgroundApi.pairingTokenChanged(changes, area);
   if (hasToken !== null) {
     connection.replacePairing(hasToken);
+    sourceContexts.clear();
   }
 });
 
@@ -48,5 +54,8 @@ chrome.runtime.onInstalled.addListener(() => {
 connection.connect();
 
 if (typeof globalThis !== 'undefined' && globalThis.__GAMBLOCK_TEST__ === true) {
-  globalThis.__gamblockBackgroundTestApi = Object.freeze({ connection });
+  globalThis.__gamblockBackgroundTestApi = Object.freeze({
+    connection,
+    sourceContexts,
+  });
 }

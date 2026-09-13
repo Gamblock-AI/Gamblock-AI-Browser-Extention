@@ -26,28 +26,52 @@ function requireFile(relativePath) {
   }
 }
 
-const manifest = readJson('manifest.json');
+const manifestPath = process.argv[3] || 'manifest.json';
+const manifest = readJson(manifestPath);
 
 if (manifest) {
   if (manifest.manifest_version !== 3) {
-    errors.push('manifest.json must use Manifest V3');
+    errors.push(`${manifestPath} must use Manifest V3`);
+  }
+
+  if (manifest.browser_specific_settings?.gecko) {
+    const gecko = manifest.browser_specific_settings.gecko;
+    if (typeof gecko.id !== 'string' || !gecko.id.includes('@')) {
+      errors.push(`${manifestPath} must define a stable Firefox Gecko ID`);
+    }
+    const disclosed = gecko.data_collection_permissions?.required || [];
+    for (const category of ['websiteActivity', 'websiteContent']) {
+      if (!disclosed.includes(category)) {
+        errors.push(`${manifestPath} must disclose local ${category} processing`);
+      }
+    }
   }
 
   if (manifest.options_page) {
     requireFile(manifest.options_page);
   }
+  if (manifest.options_ui?.page) {
+    requireFile(manifest.options_ui.page);
+  }
 
-  if (manifest.background?.service_worker) {
-    requireFile(manifest.background.service_worker);
+  const backgroundScripts = manifest.background?.scripts || [];
+  const backgroundEntrypoint = manifest.background?.service_worker ||
+    backgroundScripts[0];
+  if (backgroundEntrypoint) {
+    requireFile(backgroundEntrypoint);
+    for (const path of backgroundScripts) {
+      requireFile(path);
+    }
     for (const path of [
       'background/scan_payload.js',
+      'background/browser_context.js',
       'background/pairing_store.js',
       'background/local_connection.js',
     ]) {
       requireFile(path);
     }
   } else {
-    errors.push('manifest.json must define background.service_worker');
+    errors.push(`${manifestPath} must define a background entrypoint`);
   }
 
   for (const path of Object.values(manifest.icons || {})) {
@@ -94,4 +118,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Extension manifest verified at ${root}`);
+console.log(`Extension manifest ${manifestPath} verified at ${root}`);

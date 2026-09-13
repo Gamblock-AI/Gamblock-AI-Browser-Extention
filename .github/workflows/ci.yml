@@ -41,9 +41,12 @@ jobs:
       - name: Package extension ZIP
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          ARCHIVE="dist/gamblock-ai-extension-v${VERSION}.zip"
-          bash scripts/package-extension.sh "$ARCHIVE"
-          bash scripts/verify-extension-package.sh "$ARCHIVE"
+          CHROMIUM_ARCHIVE="dist/gamblock-ai-extension-chromium-v${VERSION}.zip"
+          FIREFOX_ARCHIVE="dist/gamblock-ai-extension-firefox-v${VERSION}.zip"
+          bash scripts/package-extension.sh chromium "$CHROMIUM_ARCHIVE"
+          bash scripts/verify-extension-package.sh chromium "$CHROMIUM_ARCHIVE"
+          bash scripts/package-extension.sh firefox "$FIREFOX_ARCHIVE"
+          bash scripts/verify-extension-package.sh firefox "$FIREFOX_ARCHIVE"
 
       - name: Create GitHub Release and upload ZIP
         uses: softprops/action-gh-release@v2

@@ -1,7 +1,7 @@
 # Gamblock AI — Browser Extension Agent Rules
 
 
-This repository is the standalone Chrome/Edge Manifest V3 extension for
+This repository is the standalone Chromium/Firefox Manifest V3 extension for
 Gamblock AI. It must remain understandable and safe when cloned without any
 other Gamblock repository. Read these files before changing code:
 
@@ -13,7 +13,7 @@ other Gamblock repository. Read these files before changing code:
 Provider-specific files are entrypoints only. If they conflict with this file,
 this file wins.
 
-Context version: `2026-09-13.4`
+Context version: `2026-09-13.5`
 
 ## Product boundary: passive sensor only
 
@@ -59,16 +59,21 @@ message requesting either action is a protocol violation and must be ignored.
   manifest changes are introduced together.
 - Preserve the `chrome.runtime.id` auto-run guard so DOM extraction remains
   testable without browser side effects.
-- Authenticate with `gamblock_pairing_token` from `chrome.storage.local` before
-  relaying any `dom_scan` message.
+- Authenticate with a mutual HMAC challenge based on
+  `gamblock_pairing_token` from `chrome.storage.local` before relaying any
+  `dom_scan`; never transmit the token itself.
+- Accept only active, focused, top-level source tabs. Keep browser tab/window
+  identifiers volatile and off the loopback wire.
 - Keep permissions minimal and explain every permission in `README.md`.
-- Every path referenced by `manifest.json`, including locale and icon assets,
-  must exist and be included in the release ZIP.
+- Every path referenced by the Chromium and Firefox manifests, including
+  locale and icon assets, must exist and be included in the matching release
+  ZIP.
 - Do not introduce remote code, remotely hosted scripts, or telemetry.
 
 ## Files and responsibilities
 
-- `manifest.json` — MV3 registration, permissions, locale, icon, and scripts
+- `manifest.json` / `manifest.firefox.json` — Chromium/Firefox MV3
+  registration, permissions, locale, icon, and scripts
 - `background.js` / `background/` — local WebSocket orchestration, bounded
   payloads, pairing storage, and authenticated relay
 - `content_script.js` — passive DOM extraction only

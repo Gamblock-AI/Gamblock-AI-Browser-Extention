@@ -60,8 +60,11 @@
       : Date.now();
   }
 
-  function makeDomScan(message) {
+  function makeDomScan(message, scanId) {
     if (!message || message.type !== 'dom_content') {
+      return null;
+    }
+    if (typeof scanId !== 'string' || !/^[a-f0-9]{32}$/.test(scanId)) {
       return null;
     }
     const url = truncateUtf8(message.url, MAX_URL_BYTES);
@@ -70,6 +73,7 @@
     }
     const scan = {
       type: 'dom_scan',
+      scan_id: scanId,
       extractionDurationMs: boundedDuration(message.extractionDurationMs),
       scanStartedAtMs: boundedEpochMilliseconds(message.scanStartedAtMs),
       url,
@@ -80,17 +84,12 @@
     };
     const payload = JSON.stringify(scan);
     return encoder.encode(payload).byteLength <= MAX_DOM_SCAN_BYTES
-      ? { payload, url }
+      ? { payload, url, scanId }
       : null;
-  }
-
-  function pendingKey(sender, url) {
-    const tabId = sender?.tab?.id;
-    return Number.isInteger(tabId) ? `tab:${tabId}` : `url:${url}`;
   }
 
   globalThis.GamblockExtensionBackground = Object.assign(
     globalThis.GamblockExtensionBackground || {},
-    { makeDomScan, pendingKey },
+    { makeDomScan },
   );
 })();

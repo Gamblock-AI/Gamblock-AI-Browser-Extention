@@ -6,10 +6,46 @@
   const PING_INTERVAL_MS = 20000;
   const MAX_PENDING_SCANS = 10;
 
+  const PROTOCOL_VERSION = 2;
+
+  function randomHex(byteCount) {
+    const bytes = new Uint8Array(byteCount);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (value) => value.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  async function hmacHex(token, message) {
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(token),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign'],
+    );
+    const signature = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      new TextEncoder().encode(message),
+    );
+    return Array.from(new Uint8Array(signature), (value) =>
+      value.toString(16).padStart(2, '0')).join('');
+  }
+
+  function timingSafeEqual(left, right) {
+    if (typeof left !== 'string' || typeof right !== 'string' ||
+        left.length !== right.length) return false;
+    let difference = 0;
+    for (let index = 0; index < left.length; index += 1) {
+      difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+    }
+    return difference === 0;
+  }
+
   class LocalProtectionConnection {
-    constructor(getPairingToken, pendingKey) {
+    constructor(getPairingToken, probeContext) {
       this.getPairingToken = getPairingToken;
-      this.pendingKey = pendingKey;
+      this.probeContext = probeContext;
       this.ws = null;
       this.reconnectTimer = null;
       this.pingInterval = null;
@@ -19,6 +55,7 @@
       this.connectionGeneration = 0;
       this.connecting = false;
       this.pendingScans = new Map();
+      this.authContext = null;
     }
 
     stopKeepAlive() {
@@ -50,6 +87,7 @@
       const socket = this.ws;
       this.ws = null;
       this.connectionAuthenticated = false;
+      this.authContext = null;
       this.stopKeepAlive();
       if (socket) {
         try {
@@ -86,8 +124,8 @@
       }
     }
 
-    relayOrQueue(scan, sender) {
-      const key = this.pendingKey(sender, scan.url);
+    relayOrQueue(scan) {
+      const key = scan.scanId;
       if (this.sendDomScan(this.ws, scan.payload)) {
         this.pendingScans.delete(key);
         return;
@@ -161,18 +199,13 @@
       }
       this.ws = socket;
       this.connectionAuthenticated = false;
+      this.authContext = null;
       this.installSocketHandlers(socket, token);
     }
 
     installSocketHandlers(socket, token) {
       socket.onopen = () => {
         if (socket !== this.ws) {
-          return;
-        }
-        try {
-          socket.send(JSON.stringify({ type: 'auth', token }));
-        } catch (_) {
-          socket.close();
           return;
         }
         this.clearReconnectTimer();
@@ -200,15 +233,20 @@
           console.warn('[Gamblock] Ignored non-JSON message from service');
           return;
         }
-        if (message.type === 'auth_ok') {
-          this.pairingRejected = false;
-          this.connectionAuthenticated = true;
-          this.flushPendingScans(socket);
+        if (message.type === 'server_hello' &&
+            !this.connectionAuthenticated) {
+          void this.answerServerHello(socket, token, message);
+        } else if (message.type === 'auth_ok' &&
+                   !this.connectionAuthenticated) {
+          void this.acceptServerProof(socket, token, message);
         } else if (message.type === 'auth_denied') {
           this.connectionAuthenticated = false;
           this.pairingRejected = true;
           this.pendingScans.clear();
           socket.close();
+        } else if (message.type === 'context_probe' &&
+                   this.connectionAuthenticated) {
+          void this.answerContextProbe(socket, message);
         }
       };
 
@@ -218,6 +256,7 @@
         }
         this.ws = null;
         this.connectionAuthenticated = false;
+        this.authContext = null;
         this.stopKeepAlive();
         this.pendingScans.clear();
         this.scheduleReconnect();
@@ -230,9 +269,81 @@
       };
     }
 
-    handleDomScan(scan, sender) {
+    async answerServerHello(socket, token, message) {
+      if (socket !== this.ws || message.protocol !== PROTOCOL_VERSION ||
+          this.authContext || typeof message.server_nonce !== 'string' ||
+          !/^[a-f0-9]{32}$/.test(message.server_nonce)) return;
+      const clientNonce = randomHex(16);
+      const extensionId = chrome.runtime.id;
+      const auth = {
+        serverNonce: message.server_nonce,
+        clientNonce,
+        extensionId,
+      };
+      this.authContext = auth;
+      const source = `client|${PROTOCOL_VERSION}|${message.server_nonce}|${clientNonce}|${extensionId}`;
+      try {
+        const proof = await hmacHex(token, source);
+        if (socket !== this.ws || socket.readyState !== WebSocket.OPEN ||
+            this.authContext !== auth) return;
+        socket.send(JSON.stringify({
+          type: 'auth_response',
+          protocol: PROTOCOL_VERSION,
+          extension_id: extensionId,
+          client_nonce: clientNonce,
+          proof,
+        }));
+      } catch (_) {
+        if (this.authContext === auth) this.authContext = null;
+        socket.close();
+      }
+    }
+
+    async acceptServerProof(socket, token, message) {
+      const auth = this.authContext;
+      if (socket !== this.ws || !auth ||
+          message.protocol !== PROTOCOL_VERSION ||
+          typeof message.proof !== 'string') return;
+      const source = `server|${PROTOCOL_VERSION}|${auth.serverNonce}|${auth.clientNonce}|${auth.extensionId}`;
+      try {
+        const expected = await hmacHex(token, source);
+        if (socket !== this.ws || this.authContext !== auth) return;
+        if (!timingSafeEqual(message.proof, expected)) {
+          this.pairingRejected = true;
+          socket.close();
+          return;
+        }
+        this.pairingRejected = false;
+        this.connectionAuthenticated = true;
+        this.authContext = null;
+        this.flushPendingScans(socket);
+      } catch (_) {
+        socket.close();
+      }
+    }
+
+    async answerContextProbe(socket, message) {
+      if (typeof message.probe_id !== 'string' ||
+          typeof message.scan_id !== 'string' ||
+          !/^[a-f0-9]{32}$/.test(message.probe_id) ||
+          !/^[a-f0-9]{32}$/.test(message.scan_id)) return;
+      const state = await this.probeContext(message.scan_id);
+      if (socket !== this.ws || !this.connectionAuthenticated ||
+          socket.readyState !== WebSocket.OPEN) return;
+      try {
+        socket.send(JSON.stringify({
+          type: 'context_probe_result',
+          probe_id: message.probe_id,
+          state,
+        }));
+      } catch (_) {
+        socket.close();
+      }
+    }
+
+    handleDomScan(scan) {
       if (this.pairingConfigured) {
-        this.relayOrQueue(scan, sender);
+        this.relayOrQueue(scan);
         return;
       }
       void this.getPairingToken().then((token) => {
@@ -240,7 +351,7 @@
           return;
         }
         this.pairingConfigured = true;
-        this.relayOrQueue(scan, sender);
+        this.relayOrQueue(scan);
         this.connect();
       });
     }

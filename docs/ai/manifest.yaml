@@ -1,5 +1,5 @@
 schema_version: 1
-context_version: "2026-09-13.4"
+context_version: "2026-09-13.5"
 component: "browser_extension"
 repository_mode: "standalone"
 canonical_rules: "AGENTS.md"
@@ -7,11 +7,12 @@ canonical_rules: "AGENTS.md"
 shared_contracts:
   proposal_authority: 1
   privacy_boundary: 1
-  websocket_loopback: 2
+  websocket_loopback: 3
 
 required_context:
   - "AGENTS.md"
   - "README.md"
+  - "docs/store-publishing.md"
   - "docs/ai/README.md"
   - "docs/ai/manifest.yaml"
 
@@ -55,6 +56,7 @@ contracts:
 
 release_runtime_paths:
   - "manifest.json"
+  - "manifest.firefox.json"
   - "background.js"
   - "content_script.js"
   - "options.html"

@@ -3,6 +3,8 @@ globalThis.__GAMBLOCK_TEST__ = true;
 
 globalThis.chrome = {
   runtime: {
+    id: 'test-extension-id',
+    lastError: null,
     sendMessage: () => {},
     onMessage: { addListener: () => {} },
     onInstalled: { addListener: () => {} },
@@ -15,5 +17,10 @@ globalThis.chrome = {
     create: () => {},
     onAlarm: { addListener: () => {} },
   },
-  tabs: { query: (_q, cb) => cb && cb([]), update: () => {} },
+  tabs: {
+    get: (id, cb) => cb && cb({ id, windowId: 1, active: true, url: '' }),
+    query: (_q, cb) => cb && cb([]),
+    update: () => {},
+  },
+  windows: { get: (id, cb) => cb && cb({ id, focused: true }) },
 };

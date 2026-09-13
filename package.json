@@ -9,12 +9,12 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "validate:extension": "node scripts/validate-extension.mjs",
+    "validate:extension": "node scripts/validate-extension.mjs && node scripts/validate-extension.mjs . manifest.firefox.json",
     "lint": "node --check background.js && node --check background/*.js && node --check content_script.js && node --check options.js && npm run validate:extension",
     "verify:context": "bash scripts/verify-ai-context.sh",
     "verify:context:local": "bash scripts/verify-ai-context.sh --allow-untracked",
-    "package:extension": "bash scripts/package-extension.sh",
-    "verify:package": "bash scripts/verify-extension-package.sh",
+    "package:extension": "bash scripts/package-extension.sh chromium && bash scripts/package-extension.sh firefox",
+    "verify:package": "bash scripts/verify-extension-package.sh chromium && bash scripts/verify-extension-package.sh firefox",
     "verify": "npm run verify:context:local && npm run lint"
   },
   "repository": {
