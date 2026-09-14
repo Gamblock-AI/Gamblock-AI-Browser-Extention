@@ -1,6 +1,6 @@
 {
   "name": "browser_extension",
-  "version": "1.0.1",
+  "version": "1.6.17",
   "description": "Passive DOM sensor for Gamblock AI on Windows. Reads textual page content (title, headings, anchor text) and forwards it to the local **Windows Service** over an authenticated WebSocket for on-device AI classification.",
   "main": "background.js",
   "engines": {

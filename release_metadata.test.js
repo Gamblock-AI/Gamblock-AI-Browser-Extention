@@ -10,6 +10,8 @@ const {
 const { tmpdir } = require('node:os');
 const { join, resolve } = require('node:path');
 
+const extensionVersion = require('./manifest.json').version;
+
 const repoRoot = resolve(__dirname);
 const metadataScript = resolve(repoRoot, 'scripts/create-release-metadata.mjs');
 
@@ -25,11 +27,11 @@ describe('release metadata', () => {
       const firefoxData = Buffer.from('firefox fixture');
       const chromium = join(
         temporaryRoot,
-        'gamblock-ai-extension-chromium-v1.0.1.zip',
+        `gamblock-ai-extension-chromium-v${extensionVersion}.zip`,
       );
       const firefox = join(
         temporaryRoot,
-        'gamblock-ai-extension-firefox-v1.0.1.zip',
+        `gamblock-ai-extension-firefox-v${extensionVersion}.zip`,
       );
       const output = join(temporaryRoot, 'compatibility.json');
       writeFileSync(chromium, chromiumData);
@@ -37,7 +39,7 @@ describe('release metadata', () => {
 
       execFileSync(process.execPath, [
         metadataScript,
-        '--version', '1.0.1',
+        '--version', extensionVersion,
         '--commit', 'test-commit',
         '--chromium', chromium,
         '--firefox', firefox,
@@ -48,8 +50,8 @@ describe('release metadata', () => {
       const metadata = JSON.parse(readFileSync(output, 'utf8'));
       expect(metadata).toMatchObject({
         schema_version: 1,
-        release_tag: 'v1.0.1',
-        extension_version: '1.0.1',
+        release_tag: `v${extensionVersion}`,
+        extension_version: extensionVersion,
         source_commit: 'test-commit',
         manifest_version: 3,
         websocket_protocol: 2,
@@ -58,13 +60,13 @@ describe('release metadata', () => {
         expect.objectContaining({
           family: 'chromium',
           manifest: 'manifest.json',
-          filename: 'gamblock-ai-extension-chromium-v1.0.1.zip',
+          filename: `gamblock-ai-extension-chromium-v${extensionVersion}.zip`,
           sha256: sha256(chromiumData),
         }),
         expect.objectContaining({
           family: 'firefox',
           manifest: 'manifest.firefox.json',
-          filename: 'gamblock-ai-extension-firefox-v1.0.1.zip',
+          filename: `gamblock-ai-extension-firefox-v${extensionVersion}.zip`,
           sha256: sha256(firefoxData),
         }),
       ]);
